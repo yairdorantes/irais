@@ -139,6 +139,24 @@ function App() {
       }
     } else {
       localStorage.setItem("info", JSON.stringify(1));
+
+      setDisableButton(true);
+      axios
+        .post(`${url}/form`, data)
+        .then((res) => {
+          console.log(res);
+          toast.success("Enviado con éxito");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Hubó un error en el envio intenta otra vez ");
+        })
+        .finally(() => {
+          setTimeout(() => {
+            setDisableButton(false);
+            setPage(0);
+          }, 2500);
+        });
     }
   };
   return (
