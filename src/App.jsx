@@ -3,7 +3,8 @@ import "./App.css";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "react-hot-toast";
-const url = "http://127.0.0.1:8000/api";
+// const url = "http://127.0.0.1:8000/api";
+const url = "https://irais-production.up.railway.app/api";
 
 function Registers({ changeState }) {
   const [data, setdata] = useState([]);
@@ -130,8 +131,8 @@ function App() {
           .finally(() => {
             setTimeout(() => {
               setDisableButton(false);
+              setPage(0);
             }, 2500);
-            setPage(0);
           });
       } else {
         toast.error("Haz excedido el numero de envios permitidos");
