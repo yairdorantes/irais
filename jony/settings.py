@@ -80,23 +80,23 @@ WSGI_APPLICATION = "jony.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
 # DATABASES = {
 #     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "railway",
-#         "USER": "postgres",
-#         "PASSWORD": "jh26f1lRWA5qqIaTTFye",
-#         "HOST": "containers-us-west-2.railway.app",
-#         "PORT": "5454",
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "railway",
+        "USER": "postgres",
+        "PASSWORD": "bvLSHnRHjS3gjZV4HdJT",
+        "HOST": "containers-us-west-154.railway.app",
+        "PORT": "6252",
+    }
+}
 # kk
 
 # Password validation
