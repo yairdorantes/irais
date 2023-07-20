@@ -109,18 +109,21 @@ function App() {
                   }}
                   base64={true}
                 >
-                  <div className="bg-blue-400 text-black rounded-xl p-2">
-                    <div>Elige una imagen</div>
-                    <svg
-                      fill="currentColor"
-                      viewBox="0 0 16 16"
-                      height="1em"
-                      width="1em"
-                      className="w-8  mx-auto h-8"
-                    >
-                      <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zM8.5 4.5a.5.5 0 00-1 0v5.793L5.354 8.146a.5.5 0 10-.708.708l3 3a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V4.5z" />
-                    </svg>
-                    <div>
+                  <div className="flex flex-col bg-gray-800 rounded-lg p-4 items-center gap-2">
+                    <div>Selecciona tu imagen</div>
+                    <div className="">
+                      <svg
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                        height="1em"
+                        width="1em"
+                        className="w-8 h-8"
+                      >
+                        <path d="M6.002 5.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                        <path d="M1.5 2A1.5 1.5 0 000 3.5v9A1.5 1.5 0 001.5 14h13a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0014.5 2h-13zm13 1a.5.5 0 01.5.5v6l-3.775-1.947a.5.5 0 00-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 00-.63.062L1.002 12v.54A.505.505 0 011 12.5v-9a.5.5 0 01.5-.5h13z" />
+                      </svg>
+                    </div>
+                    <div className="badge">
                       {image.base64 && image.base64.length > 0
                         ? truncateText(image.fileList[0].name, 20)
                         : "-"}
@@ -129,26 +132,32 @@ function App() {
                 </ReactFileReader>
               </div>
               <div id="video-reader">
-                <div className="bg-blue-400 text-black rounded-xl p-2">
-                  <div>Elige una video</div>
-                  <svg
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                    height="1em"
-                    width="1em"
-                    className="w-8  mx-auto h-8"
-                  >
-                    <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zM8.5 4.5a.5.5 0 00-1 0v5.793L5.354 8.146a.5.5 0 10-.708.708l3 3a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V4.5z" />
-                  </svg>
-                  <div>video</div>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) => setVideoFile(e.target.files[0])}
-                  />
+                <ReactFileReader
+                  handleFiles={(e) => {
+                    console.log(e[0]);
+                    setVideoFile(e[0]);
+                  }}
+                >
+                  <div className="bg-gray-800   rounded-xl p-6">
+                    <div>Elige el video</div>
+                    <svg
+                      viewBox="0 0 980 1000"
+                      fill="currentColor"
+                      height="1em"
+                      width="1em"
+                      className="w-10 mx-auto h-10"
+                    >
+                      <path d="M980 250H880v100h100v100H880v100h100v100H880v100h100v60c0 10.667-4 20-12 28s-17.333 12-28 12H40c-10.667 0-20-4-28-12S0 820.667 0 810v-60h100V650H0V550h100V450H0V350h100V250H0v-60c0-12 4-21.667 12-29 8-7.333 17.333-11 28-11h900c10.667 0 20 3.667 28 11s12 17 12 29v60M380 650l250-150-250-150v300" />
+                    </svg>
+                    <div className="badge">
+                      {videoFile && videoFile.name.length > 0
+                        ? truncateText(videoFile.name, 20)
+                        : "-"}
+                    </div>
 
-                  <div></div>
-                </div>
+                    <div></div>
+                  </div>
+                </ReactFileReader>
               </div>
               <div className="w-full">
                 {loader ? (
@@ -157,7 +166,7 @@ function App() {
                   <button
                     // disabled={loader}
                     type="submit"
-                    className="btn  w-1/4 btn-success"
+                    className="btn  w-48 btn-success"
                   >
                     Enviar{" "}
                   </button>
