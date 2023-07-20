@@ -2,149 +2,47 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import ReactFileReader from "react-file-reader";
 import { Toaster, toast } from "react-hot-toast";
-// const url = "http://127.0.0.1:8000/api";
-const url = "https://irais-production.up.railway.app/api";
-
-function Registers({ changeState }) {
-  const [data, setdata] = useState([]);
-  const getData = () => {
-    axios
-      .get(`${url}/form`)
-      .then((res) => {
-        console.log(res);
-        setdata(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  useEffect(() => {
-    getData();
-  }, []);
-  function truncateText(text, maxLength) {
-    if (text.length <= maxLength) {
-      return text;
-    }
-
-    return text.slice(0, maxLength) + "...";
+import validator from "validator";
+import { uploadFile } from "./firebase/config";
+import Loader from "./Loader";
+import Registers from "./Registers";
+// const url = "https://irais-production.up.railway.app/api";
+const url = "http://127.0.0.1:8000/api";
+function truncateText(text, maxLength) {
+  if (text.length <= maxLength) {
+    return text;
   }
-  return (
-    <div>
-      <div>
-        <button className="btn btn-info" onClick={() => changeState(1)}>
-          Regresar
-          <svg
-            viewBox="0 0 512 512"
-            fill="currentColor"
-            height="1em"
-            className="w-7 h-7"
-            width="1em"
-          >
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={32}
-              d="M112 160l-64 64 64 64"
-            />
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={32}
-              d="M64 224h294c58.76 0 106 49.33 106 108v20"
-            />
-          </svg>
-        </button>
-      </div>
-      <div>
-        {data.length > 0 ? (
-          <div className="overflow-x-auto mt-5">
-            <table className="table table-zebra text-center">
-              {/* head */}
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Nombre</th>
-                  <th>Pelicula favorita</th>
-                  <th>Personaje favorito</th>
-                  <th>Canción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* row 1 */}
 
-                {data.map((dato, i) => (
-                  <tr key={i}>
-                    <th>{i + 1}</th>
-                    <td>{dato.name}</td>
-                    <td>{dato.movie}</td>
-                    <td>{dato.character}</td>
-                    <td className="link link-info ">
-                      <a href={dato.song_link} rel="noreferrer" target="_blank">
-                        {truncateText(dato.song_link, 25)}
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="alert max-w-lg mx-auto  mt-3 alert-info">
-            Nada por aqui....
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return text.slice(0, maxLength) + "...";
 }
 
 function App() {
+  const [image, setImage] = useState("");
+  const [loader, setLoader] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
   const [page, setPage] = useState(1);
-  const [disableButton, setDisableButton] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const sendData = (data) => {
-    const cont = JSON.parse(localStorage.getItem("info"));
-    if (cont) {
-      if (cont < 7) {
-        const newCont = cont + 1;
-        localStorage.setItem("info", JSON.stringify(newCont));
-        setDisableButton(true);
-        axios
-          .post(`${url}/form`, data)
-          .then((res) => {
-            console.log(res);
-            toast.success("Enviado con éxito");
-          })
-          .catch((err) => {
-            console.log(err);
-            toast.error("Hubó un error en el envio intenta otra vez ");
-          })
-          .finally(() => {
-            setTimeout(() => {
-              setDisableButton(false);
-              setPage(0);
-            }, 2500);
-          });
-      } else {
-        toast.error("Haz excedido el numero de envios permitidos");
-      }
-    } else {
-      localStorage.setItem("info", JSON.stringify(1));
-
-      setDisableButton(true);
+  const { register, handleSubmit, reset } = useForm();
+  const sendData = async (data) => {
+    let isValid = true;
+    Object.values(data).forEach((value, key) => {
+      const validation = validator.isAlpha(value);
+      if (key <= 2) if (!validation) isValid = false;
+    });
+    if (isValid) {
+      setLoader(true);
+      const result = await uploadFile(videoFile);
       axios
-        .post(`${url}/form`, data)
+        .post(`${url}/form`, {
+          ...data,
+          image: image.base64,
+          video: result,
+        })
         .then((res) => {
           console.log(res);
+          reset();
+
           toast.success("Enviado con éxito");
         })
         .catch((err) => {
@@ -152,13 +50,16 @@ function App() {
           toast.error("Hubó un error en el envio intenta otra vez ");
         })
         .finally(() => {
+          setLoader(false);
           setTimeout(() => {
-            setDisableButton(false);
             setPage(0);
           }, 2500);
         });
+    } else {
+      toast.error("Haz introducido caracteres no alfabéticos");
     }
   };
+
   return (
     <>
       {page === 1 ? (
@@ -201,14 +102,67 @@ function App() {
                 placeholder="Link a cancion"
                 className="input input-bordered input-success w-full max-w-xs"
               />
-              <div className="w-full">
-                <button
-                  disabled={disableButton}
-                  type="submit"
-                  className="btn  w-1/4 btn-success"
+              <div id="image-reader">
+                <ReactFileReader
+                  handleFiles={(event) => {
+                    console.log(event);
+                    setImage(event);
+                  }}
+                  base64={true}
                 >
-                  Enviar{" "}
-                </button>
+                  <div className="bg-blue-400 text-black rounded-xl p-2">
+                    <div>Elige una imagen</div>
+                    <svg
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                      height="1em"
+                      width="1em"
+                      className="w-8  mx-auto h-8"
+                    >
+                      <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zM8.5 4.5a.5.5 0 00-1 0v5.793L5.354 8.146a.5.5 0 10-.708.708l3 3a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V4.5z" />
+                    </svg>
+                    <div>
+                      {image.base64 && image.base64.length > 0
+                        ? truncateText(image.fileList[0].name, 20)
+                        : "-"}
+                    </div>
+                  </div>
+                </ReactFileReader>
+              </div>
+              <div id="video-reader">
+                <div className="bg-blue-400 text-black rounded-xl p-2">
+                  <div>Elige una video</div>
+                  <svg
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    height="1em"
+                    width="1em"
+                    className="w-8  mx-auto h-8"
+                  >
+                    <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zM8.5 4.5a.5.5 0 00-1 0v5.793L5.354 8.146a.5.5 0 10-.708.708l3 3a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V4.5z" />
+                  </svg>
+                  <div>video</div>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setVideoFile(e.target.files[0])}
+                  />
+
+                  <div></div>
+                </div>
+              </div>
+              <div className="w-full">
+                {loader ? (
+                  <Loader />
+                ) : (
+                  <button
+                    // disabled={loader}
+                    type="submit"
+                    className="btn  w-1/4 btn-success"
+                  >
+                    Enviar{" "}
+                  </button>
+                )}
               </div>
             </div>
           </form>
