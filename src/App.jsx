@@ -8,8 +8,7 @@ import validator from "validator";
 import { uploadFile } from "./firebase/config";
 import Loader from "./Loader";
 import Registers from "./Registers";
-// const url = "https://irais-production.up.railway.app/api";
-const url = "http://127.0.0.1:8000/api";
+import { api } from "./api";
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) {
     return text;
@@ -34,7 +33,7 @@ function App() {
       setLoader(true);
       const result = await uploadFile(videoFile);
       axios
-        .post(`${url}/form`, {
+        .post(`${api}/form`, {
           ...data,
           image: image.base64,
           video: result,

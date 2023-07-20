@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { api } from "./api";
 
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) {
@@ -8,13 +9,12 @@ function truncateText(text, maxLength) {
 
   return text.slice(0, maxLength) + "...";
 }
-// const url = "https://irais-production.up.railway.app/api";
-const url = "http://127.0.0.1:8000/api";
+
 const Registers = ({ changeState }) => {
   const [data, setdata] = useState([]);
   const getData = () => {
     axios
-      .get(`${url}/form`)
+      .get(`${api}/form`)
       .then((res) => {
         console.log(res);
         setdata(res.data.data);
