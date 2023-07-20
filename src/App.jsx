@@ -103,6 +103,7 @@ function App() {
               />
               <div id="image-reader">
                 <ReactFileReader
+                  fileTypes={[".jpg", ".png", ".jpeg", "webp"]}
                   handleFiles={(event) => {
                     console.log(event);
                     setImage(event);
@@ -133,6 +134,7 @@ function App() {
               </div>
               <div id="video-reader">
                 <ReactFileReader
+                  fileTypes={[".webm", ".mp4", ".avi"]}
                   handleFiles={(e) => {
                     console.log(e[0]);
                     setVideoFile(e[0]);
