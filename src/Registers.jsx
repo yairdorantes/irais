@@ -30,8 +30,10 @@ const Registers = ({ changeState }) => {
   return (
     <div>
       <div>
-        <button className="btn btn-info" onClick={() => changeState(1)}>
-          Regresar
+        <button
+          className="btn btn-info rounded-full"
+          onClick={() => changeState(1)}
+        >
           <svg
             viewBox="0 0 512 512"
             fill="currentColor"
