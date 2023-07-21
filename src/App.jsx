@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import ReactFileReader from "react-file-reader";
 import { Toaster, toast } from "react-hot-toast";
-import validator from "validator";
+// import validator from "validator";
 import { uploadFile } from "./firebase/config";
 import Loader from "./Loader";
 import Registers from "./Registers";
@@ -16,9 +16,12 @@ function truncateText(text, maxLength) {
 
   return text.slice(0, maxLength) + "...";
 }
-
+function isAlphaWithSpaces(input) {
+  const alphaWithSpacesRegex = /^[A-Za-z\s]+$/;
+  return alphaWithSpacesRegex.test(input);
+}
 function App() {
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
   const [loader, setLoader] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
   const [page, setPage] = useState(1);
@@ -26,8 +29,10 @@ function App() {
   const sendData = async (data) => {
     let isValid = true;
     Object.values(data).forEach((value, key) => {
-      const validation = validator.isAlpha(value);
-      if (key <= 2) if (!validation) isValid = false;
+      if (key <= 2) {
+        const validation = isAlphaWithSpaces(value);
+        if (validation === false) isValid = false;
+      }
     });
     if (isValid) {
       setLoader(true);
@@ -62,7 +67,7 @@ function App() {
         toast.error("Elige un archivo de menor tamaño");
       }
     } else {
-      toast.error("Haz introducido caracteres no alfabéticos");
+      toast.error("Rellena correctamente todos los campos");
     }
   };
 
@@ -104,7 +109,7 @@ function App() {
                 <ReactFileReader
                   fileTypes={[".webm", ".mp4", ".avi"]}
                   handleFiles={(e) => {
-                    console.log(e[0].size);
+                    console.log(e[0].name);
                     setVideoFile(e[0]);
                   }}
                 >
@@ -139,7 +144,7 @@ function App() {
                 <ReactFileReader
                   fileTypes={[".jpg", ".png", ".jpeg", "webp"]}
                   handleFiles={(event) => {
-                    console.log(event);
+                    console.log(event.fileList[0].name);
                     setImage(event);
                   }}
                   base64={true}
@@ -159,7 +164,9 @@ function App() {
                       </svg>
                     </div>
                     <div className="badge badge-warning">
-                      {image.base64 && image.base64.length > 0
+                      {image &&
+                      image.fileList[0] &&
+                      image.fileList[0].name.length > 0
                         ? truncateText(image.fileList[0].name, 20)
                         : "-"}
                     </div>
@@ -177,11 +184,11 @@ function App() {
                   <Loader />
                 ) : (
                   <button
-                    // disabled={loader}
+                    disabled={!videoFile || !image}
                     type="submit"
                     className="btn  w-48 btn-success"
                   >
-                    Enviar{" "}
+                    Enviar
                   </button>
                 )}
               </div>
