@@ -29,6 +29,7 @@ const Registers = ({ changeState }) => {
       videoRef.current.pause();
     }
   };
+
   useEffect(() => {
     getData();
   }, []);

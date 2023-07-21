@@ -49,7 +49,8 @@ function App() {
           .then((res) => {
             console.log(res);
             reset();
-
+            setVideoFile(null);
+            setImage(null);
             toast.success("Enviado con éxito");
           })
           .catch((err) => {
