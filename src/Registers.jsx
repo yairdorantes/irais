@@ -73,8 +73,8 @@ const Registers = ({ changeState }) => {
               {info.character}
             </p>
             {info.image && info.image.length > 0 && (
-              <div className="max-w-lg">
-                <img src={info.image} />
+              <div className="max-w-lg ">
+                <img src={info.image} className="mx-auto rounded-lg" />
               </div>
             )}
           </OutsideClickHandler>
