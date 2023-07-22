@@ -147,6 +147,7 @@ function App() {
                   handleFiles={(event) => {
                     console.log(event.fileList[0].name);
                     setImage(event);
+                    !event.fileList[0] && alert(event);
                   }}
                   base64={true}
                 >
