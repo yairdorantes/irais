@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import OutsideClickHandler from "react-outside-click-handler";
+import Loader from "./Loader";
 
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) return text;
@@ -10,10 +11,12 @@ function truncateText(text, maxLength) {
 
 const Registers = ({ changeState }) => {
   const videoRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [info, setInfo] = useState({});
   const [data, setdata] = useState([]);
   const getData = () => {
+    setIsLoading(true);
     axios
       .get(`${api}/form`)
       .then((res) => {
@@ -22,6 +25,9 @@ const Registers = ({ changeState }) => {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
   const pauseVideo = () => {
@@ -110,13 +116,13 @@ const Registers = ({ changeState }) => {
         </button>
       </div>
       <div>
-        {data.length > 0 ? (
+        {data.length > 0 && (
           <div className="overflow-x-auto mt-5">
             <table className="table table-zebra text-center">
               {/* head */}
               <thead>
                 <tr className="text-white text-md">
-                  <th></th>
+                  {/* <th></th> */}
                   <th className=" ">Nombre</th>
                   {/* <th>Personaje favorito</th> */}
                   <th>Canción</th>
@@ -128,7 +134,7 @@ const Registers = ({ changeState }) => {
 
                 {data.map((dato, i) => (
                   <tr key={i}>
-                    <th>{i + 1}</th>
+                    {/* <th>{i + 1}</th> */}
                     <td>{dato.name}</td>
                     {/* <td>{dato.movie}</td> */}
                     {/* <td>{dato.character}</td> */}
@@ -151,9 +157,15 @@ const Registers = ({ changeState }) => {
               </tbody>
             </table>
           </div>
-        ) : (
+        )}
+        {data.length === 0 && !isLoading && (
           <div className="alert max-w-lg mx-auto  mt-3 alert-info">
             Nada por aqui....
+          </div>
+        )}
+        {isLoading && (
+          <div>
+            <Loader />
           </div>
         )}
       </div>

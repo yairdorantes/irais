@@ -36,14 +36,18 @@ function App() {
     });
     if (isValid) {
       setLoader(true);
-
+      let imageFireBase = null;
+      const imageBase64Size =
+        calculateTextSizeInBytes(image.base64) / (1024 * 1024);
+      console.log(imageBase64Size);
+      if (imageBase64Size > 3)
+        imageFireBase = await uploadFile(image.fileList[0]);
       const result = await uploadFile(videoFile);
-      console.log(result, "res");
       if (result) {
         axios
           .post(`${api}/form`, {
             ...data,
-            image: image.base64,
+            image: imageFireBase ? imageFireBase : image.base64,
             video: result,
           })
           .then((res) => {
@@ -71,6 +75,12 @@ function App() {
       toast.error("Rellena correctamente todos los campos");
     }
   };
+
+  function calculateTextSizeInBytes(text) {
+    const encoder = new TextEncoder();
+    const textBytes = encoder.encode(text);
+    return textBytes.length;
+  }
 
   return (
     <>
@@ -145,8 +155,10 @@ function App() {
                 <ReactFileReader
                   fileTypes={[".jpg", ".png", ".jpeg", "webp"]}
                   handleFiles={(event) => {
-                    console.log(event.fileList[0].name);
+                    console.log(event.fileList[0].size / (1024 * 1024));
                     setImage(event);
+                    console.log(event);
+
                     !event.fileList[0] && alert(event);
                   }}
                   base64={true}
