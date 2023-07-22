@@ -25,9 +25,7 @@ SECRET_KEY = "django-insecure-)a=dfl_+u6%u^oak$70#!+#(63h7kqtmfrk1gp9d4hye^rs-z^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
-ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     "https://jony-production.up.railway.app",
     "https://irais-production.up.railway.app",
@@ -35,6 +33,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 SITE_URL = "https://jony-production.up.railway.app"
 
+ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
