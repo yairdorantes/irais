@@ -35,6 +35,7 @@ SITE_URL = "https://jony-production.up.railway.app"
 
 ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 # Application definition
 
 INSTALLED_APPS = [
