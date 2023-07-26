@@ -101,20 +101,6 @@ function App() {
     return textBytes.length;
   }
 
-  function generateTextFile(text) {
-    const textContent = text;
-
-    const blob = new Blob([textContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "example.txt";
-    a.click();
-
-    // Release the URL object to free up resources
-    URL.revokeObjectURL(url);
-  }
   return (
     <>
       {page === 1 ? (
@@ -196,10 +182,6 @@ function App() {
                   handleFiles={(event) => {
                     console.log(event.fileList[0].size / (1024 * 1024));
                     setImage(event);
-                    // alert(event);
-                    // alert(event.fileList[0]);
-                    console.log(event);
-                    generateTextFile(JSON.stringify(event));
                     !event.fileList[0] && alert(event);
                   }}
                   base64={true}
