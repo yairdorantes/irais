@@ -4,8 +4,8 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import ReactFileReader from "react-file-reader";
 import { Toaster, toast } from "react-hot-toast";
-// import validator from "validator";
 import { uploadFile } from "./firebase/config";
+import { DetectFace } from "./FaceRecognition";
 import Loader from "./Loader";
 import Registers from "./Registers";
 import { api } from "./api";
@@ -24,49 +24,68 @@ function App() {
   const [image, setImage] = useState(null);
   const [loader, setLoader] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
+  const [inputIndicator, setInputIndicator] = useState([]);
   const [page, setPage] = useState(1);
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    // formState: { errors },
+  } = useForm();
   const sendData = async (data) => {
     let isValid = true;
+    let values = [];
     Object.values(data).forEach((value, key) => {
       if (key <= 2) {
         const validation = isAlphaWithSpaces(value);
-        if (validation === false) isValid = false;
+        if (validation === false) {
+          isValid = false;
+          values = [...values, key]; // Append the matching key to the array
+        }
       }
     });
+    setInputIndicator(values);
+    console.log(values);
+
     if (isValid) {
       setLoader(true);
       let imageFireBase = null;
       const imageBase64Size =
         calculateTextSizeInBytes(image.base64) / (1024 * 1024);
-      console.log(imageBase64Size);
       if (imageBase64Size > 3)
         imageFireBase = await uploadFile(image.fileList[0]);
       const result = await uploadFile(videoFile);
+      const faceResult = await DetectFace(image.base64);
       if (result) {
-        axios
-          .post(`${api}/form`, {
-            ...data,
-            image: imageFireBase ? imageFireBase : image.base64,
-            video: result,
-          })
-          .then((res) => {
-            console.log(res);
-            reset();
-            setVideoFile(null);
-            setImage(null);
-            toast.success("Enviado con éxito");
-          })
-          .catch((err) => {
-            console.log(err);
-            toast.error("Hubó un error en el envio intenta otra vez ");
-          })
-          .finally(() => {
-            setLoader(false);
-            setTimeout(() => {
-              setPage(0);
-            }, 2500);
-          });
+        if (faceResult) {
+          axios
+            .post(`${api}/form`, {
+              ...data,
+              image: imageFireBase ? imageFireBase : image.base64,
+              video: result,
+              person_data: faceResult,
+            })
+            .then((res) => {
+              console.log(res);
+              reset();
+              setVideoFile(null);
+              setImage(null);
+              toast.success("Enviado con éxito");
+            })
+            .catch((err) => {
+              console.log(err);
+              toast.error("Hubó un error en el envio intenta otra vez ");
+            })
+            .finally(() => {
+              setLoader(false);
+              setTimeout(() => {
+                setPage(0);
+              }, 2500);
+            });
+        } else {
+          setLoader(false);
+          toast.error("No se detectó nigun rostro intenta con otra imagen");
+        }
       } else {
         setLoader(false);
         toast.error("Elige un archivo de menor tamaño");
@@ -108,13 +127,17 @@ function App() {
                 type="text"
                 placeholder="Tu nombre"
                 {...register("name", { required: true, maxLength: 100 })}
-                className="input input-bordered input-success w-full max-w-xs"
+                className={`input input-bordered  input-success w-full max-w-xs ${
+                  inputIndicator.includes(0) ? "input-error" : "input-success"
+                }`}
               />
               <input
                 type="text"
                 {...register("movie", { required: true, maxLength: 100 })}
                 placeholder="Tu película favorita"
-                className="input input-bordered input-success w-full max-w-xs"
+                className={`input input-bordered ${
+                  inputIndicator.includes(1) ? "input-error" : "input-success"
+                }  w-full max-w-xs`}
               />{" "}
               <div id="video-reader">
                 <ReactFileReader
@@ -149,7 +172,9 @@ function App() {
                 type="text"
                 {...register("character", { required: true, maxLength: 100 })}
                 placeholder="Tu personaje favorito"
-                className="input input-bordered input-success w-full max-w-xs"
+                className={`input input-bordered ${
+                  inputIndicator.includes(2) ? "input-error" : "input-success"
+                }  w-full max-w-xs`}
               />{" "}
               <div id="image-reader">
                 <ReactFileReader

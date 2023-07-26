@@ -14,6 +14,7 @@ const Registers = ({ changeState }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [info, setInfo] = useState({});
+  const [showImageDetails, setShowImageDetails] = useState(true);
   const [data, setdata] = useState([]);
   const getData = () => {
     setIsLoading(true);
@@ -73,8 +74,24 @@ const Registers = ({ changeState }) => {
               {info.character}
             </p>
             {info.image && info.image.length > 0 && (
-              <div className="max-w-lg ">
-                <img src={info.image} className="mx-auto rounded-lg" />
+              <div className="max-w-lg relative">
+                <img
+                  onClick={() => setShowImageDetails(!showImageDetails)}
+                  src={info.image}
+                  className="mx-auto rounded-lg cursor-pointer"
+                />
+                <div
+                  className={`absolute transition-all duration-500 ${
+                    showImageDetails ? "block" : "opacity-0 "
+                  } bottom-0 font-bold text-lg  bg-black bg-opacity-70 w-full text-center`}
+                >
+                  <div>
+                    {info.person_data.gender === "M" ? "Hombre" : "Mujer"} de{" "}
+                    {info.person_data.age} años
+                  </div>
+                  <div>Raza: {info.person_data.race}</div>
+                  <div className="badge">(Informacion Aproximada)</div>
+                </div>
               </div>
             )}
           </OutsideClickHandler>
@@ -154,7 +171,10 @@ const Registers = ({ changeState }) => {
                     </td>
                     <th
                       onClick={() => {
-                        setInfo(dato);
+                        setInfo({
+                          ...dato,
+                          person_data: JSON.parse(dato.person_data),
+                        });
                         window.my_modal_2.showModal();
                       }}
                       className="badge badge-info mt-2 cursor-pointer hover:badge-secondary"
