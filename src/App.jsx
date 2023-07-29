@@ -9,6 +9,8 @@ import { DetectFace } from "./FaceRecognition";
 import Loader from "./Loader";
 import Registers from "./Registers";
 import { api } from "./api";
+const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) {
     return text;
@@ -55,7 +57,10 @@ function App() {
       if (imageBase64Size > 3)
         imageFireBase = await uploadFile(image.fileList[0]);
       const result = await uploadFile(videoFile);
-      const faceResult = await DetectFace(image.base64);
+      const faceResult = await DetectFace(
+        imageFireBase ? imageFireBase : image.base64
+      );
+      imageFireBase ? console.log(imageFireBase) : console.log(image.base64);
       if (result) {
         if (faceResult) {
           axios
@@ -181,8 +186,15 @@ function App() {
                   fileTypes={[".jpg", ".png", ".jpeg", "webp"]}
                   handleFiles={(event) => {
                     console.log(event.fileList[0].size / (1024 * 1024));
-                    setImage(event);
-                    !event.fileList[0] && alert(event);
+                    const fileType = event.fileList[0].type;
+                    console.log(event.fileList[0].type);
+                    if (!allowedTypes.includes(fileType)) {
+                      toast.error(
+                        "Formato de imagen invalido, formatos validos: .jpg .png, .jpeg,web"
+                      );
+                    } else {
+                      setImage(event);
+                    }
                   }}
                   base64={true}
                 >

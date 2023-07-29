@@ -17,7 +17,6 @@ export const storage = getStorage(app);
 
 export async function uploadFile(file) {
   const fileSize = file.size / (1024 * 1024);
-
   if (fileSize > 300) {
     return null;
   } else {
